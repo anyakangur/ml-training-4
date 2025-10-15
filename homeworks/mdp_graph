@@ -1,0 +1,19 @@
+// MDP
+digraph {
+	s0 [label=s0 shape=circle]
+	s1 [label=s1 shape=circle]
+	s2 [label=s2 shape=circle]
+	s0 -> s0 [label="a0, p=0.5"]
+	s0 -> s2 [label="a0, p=0.5"]
+	s0 -> s2 [label="a1, p=1"]
+	s1 -> s0 [label="a0, p=0.7, r=5"]
+	s1 -> s1 [label="a0, p=0.1"]
+	s1 -> s2 [label="a0, p=0.2"]
+	s1 -> s1 [label="a1, p=0.95"]
+	s1 -> s2 [label="a1, p=0.05"]
+	s2 -> s0 [label="a0, p=0.4"]
+	s2 -> s2 [label="a0, p=0.6"]
+	s2 -> s0 [label="a1, p=0.3, r=-1"]
+	s2 -> s1 [label="a1, p=0.3"]
+	s2 -> s2 [label="a1, p=0.4"]
+}
