@@ -1,1 +1,3 @@
+- HW 1: Attention (Dot product, Multiplicative, Additive attention)
 - HW 2: Crossentropy method
+- HW3: Q-learning, SoftMax polic, EV-SARSA
