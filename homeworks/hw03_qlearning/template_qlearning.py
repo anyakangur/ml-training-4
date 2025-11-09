@@ -14,8 +14,11 @@ def my_softmax(values: np.ndarray, T=1.):
     Returns:
         np.array of shape (n,) - softmax probabilities
     """
-    # your code here
-    probas = None
+    values = values - max(values)
+    probas = np.zeros(values.shape[0])
+    s = np.sum(np.exp(values / T))
+    for i, value in enumerate(values):
+        probas[i] = np.exp(value / T) / s
     assert probas is not None
     return probas
 
@@ -63,16 +66,11 @@ class QLearningAgent:
         Note: please take into account that q-values can be negative.
         """
         possible_actions = self.get_legal_actions(state)
-
-        # If there are no legal actions, return 0.0
         if len(possible_actions) == 0:
             return 0.0
-
-        # YOUR CODE HERE
-        # Calculate the approximation of value function V(s).
-        value = None
+        actions = self.get_legal_actions(state)
+        value = max([self.get_qvalue(state, action) for action in actions])
         assert value is not None
-
         return value
 
     def update(self, state, action, reward, next_state):
@@ -80,33 +78,29 @@ class QLearningAgent:
         You should do your Q-Value update here:
            Q(s,a) := (1 - alpha) * Q(s,a) + alpha * (r + gamma * V(s'))
         """
-
-        # agent parameters
         gamma = self.discount
         learning_rate = self.alpha
-
-        # YOUR CODE HERE
-        # Calculate the updated value of Q(s, a).
-        qvalue = None
+        qvalue = (1 - learning_rate) * self.get_qvalue(state, action) + \
+            learning_rate * (reward + gamma * self.get_value(next_state))
         assert qvalue is not None
-
         self.set_qvalue(state, action, qvalue)
+
 
     def get_best_action(self, state):
         """
         Compute the best action to take in a state (using current q-values).
         """
         possible_actions = self.get_legal_actions(state)
-
-        # If there are no legal actions, return None
         if len(possible_actions) == 0:
             return None
-
-        # YOUR CODE HERE
-        # Choose the best action wrt the qvalues.
+        maxq = -float("inf")
         best_action = None
+        for action in possible_actions:
+            q = self.get_qvalue(state, action)
+            if maxq < q:
+                maxq = q
+                best_action = action
         assert best_action is not None
-
         return best_action
 
     def get_softmax_policy(self, state):
@@ -120,17 +114,14 @@ class QLearningAgent:
         See the formula in the notebook for more details
         """
         possible_actions = self.get_legal_actions(state)
-        # If there are no legal actions, return None
         if len(possible_actions) == 0:
             return None
-
-        # YOUR CODE HERE
-        # Compute all actions probabilities in the current state using softmax
-        q_values = None
+        q_values = [self.get_qvalue(state, action) for action in possible_actions]
+        q_values = np.asarray(q_values)
         assert q_values is not None
-        probabilities = None
+        q_values - max(q_values)
+        probabilities = my_softmax(q_values)
         assert probabilities is not None
-
         return probabilities
 
     def get_action(self, state):
@@ -143,13 +134,10 @@ class QLearningAgent:
               and compare it with your probability
         """
         possible_actions = self.get_legal_actions(state)
-        # If there are no legal actions, return None
         if len(possible_actions) == 0:
             return None
-
-        # YOUR CODE HERE
-        # Select the action to take in the current state according to the policy
-        chosen_action = None
+        actions_probabilities = self.get_softmax_policy(state)
+        chosen_action = np.random.choice(possible_actions, p=actions_probabilities)
         assert chosen_action is not None
         return chosen_action
 
@@ -171,13 +159,19 @@ class EVSarsaAgent(QLearningAgent):
         Hint: all other methods from QLearningAgent are still accessible.
         """
         possible_actions = self.get_legal_actions(state)
-        # If there are no legal actions, return 0.0
         if len(possible_actions) == 0:
             return 0.0
 
         # YOUR CODE HERE
-        # Compute the value of the current state under the softmax policy.
-        value = None
+        # Вычислите значение текущего состояния в соответствии с политикой softmax.
+        
+        # q_values = np.array([self.get_q_value(state, action) for action in possible_actions])
+        q_values = np.array([self.get_qvalue(state, action) for action in possible_actions])
+        
+        # Softmax policy
+        probs = self.get_softmax_policy(state)
+        
+        # Ожидаемое значение по политике
+        value = np.sum(probs * q_values)
         assert value is not None
-
         return value
